@@ -93,11 +93,19 @@ pip install -e .
 
 ### 2) Configure model access
 
-Set required environment variables in your shell or `.env`:
+Set required environment variables in your shell or `.env` for the LLM extraction:
 
 - `OPENAI_API_KEY` (or your provider key)
 - `MODEL_NAME`
 - `URL` (if applicable to your provider/client wrapper)
+
+**Important: Embedding Model Requirement**
+The pipeline requires a local embedding model running to vectorize the chunks. By default, it looks for a local server on port 8080.
+If you are using a tool like Ollama or LocalAI, you can define the URL and model during runtime:
+```bash
+# Example if using Ollama locally
+python run_make_new_hypergraph.py --bge-url "http://127.0.0.1:11434" --bge-model "nomic-embed-text"
+```
 
 ### 2.1) Edit prompts in one place
 
@@ -113,8 +121,14 @@ Prompt templates are centralized in `prompt_config.json` at repository root.
 
 ### 4) Run pipeline
 
+Run the script. Make sure your local embedding server (e.g., Ollama, `llama.cpp`) is running so the script can generated vector embeddings for the chunks!
+
 ```bash
+# Default (expects embedding model at http://127.0.0.1:8080 mapping BAAI/bge-m3)
 python run_make_new_hypergraph.py
+
+# Custom Local Embedder (e.g. Ollama)
+python run_make_new_hypergraph.py --bge-url "http://localhost:11434" --bge-model "nomic-embed-text"
 ```
 
 ### 5) Outputs
