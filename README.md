@@ -1,61 +1,80 @@
-# HyperGraphReasoning for Logistics Automation
+# HyperGraphReasoning for Code-as-Logistics Analysis
 
-This repository is a logistics-focused adaptation of the methodology introduced in:
+This repository adapts the methodology introduced in:
 
 **"Higher-Order Knowledge Representations for Agentic Scientific Reasoning"**  
 Isabella Stewart, Markus J. Buehler (MIT, 2026)
 
-We are repurposing that higher-order knowledge representation framework from scientific text to logistics operations data (shipment events, route constraints, carrier actions, SLA/KPI violations, etc.).
+We have uniquely repurposed that higher-order knowledge representation framework to **analyze source code and architecture**. By treating software execution as a **logistical process**, this pipeline generates hypergraphs that map code flow, variables, and API calls as "shipments," "facilities," and "dispatch routes." The end result is a high-level documentation artifact that reads like a logistical workflow, making complex codebases easier to understand and reason about.
+
+---
+
+## Workflow Diagram
+
+```mermaid
+flowchart TD
+    A[Codebase/Documentation Docs] -->|Ingest/Convert| B(markdown files in /Data)
+    B -->|Chunking| C[run_make_new_hypergraph.py]
+    C -->|Reads Config| D[prompt_config.json]
+    D -.->|Provides N-ary 'Code as Logistics' Prompts| C
+    C -->|LLM Extraction| E[GraphReasoning Core]
+    E -->|Generates Nodes & Hyperedges| F((Hypergraph Artifacts))
+    F -->|Saved to| G[artifacts/sg/graphs/]
+    F -->|Analysis & Visualization| H[Notebooks/SG/Analyze_Hypergraph.ipynb]
+```
 
 ---
 
 ## What this project does
 
-This pipeline converts logistics documents into:
+This pipeline converts source code, technical specifications, and system architecture documents into:
 
-- Directed knowledge graphs (pairwise relations)
-- Hypergraphs (higher-order multi-entity events)
-- Graph/hypergraph artifacts for analysis and agent workflows
+- **Logistics-mapped Hypergraphs:** Higher-order multi-entity events that represent code execution.
+- **Abstracted Architectures:** Data flow becomes "inventory movement," functions become "processing facilities," and databases become "warehouses."
+- **Graph/hypergraph artifacts:** For root-cause analysis, system documentation, and agent workflows.
 
-Typical extracted entities include:
-
-- shipment, order, SKU, package, pallet, container
-- route, lane, stop, facility, warehouse, dock
-- carrier, vehicle, customer, supplier
-- SLA, KPI, delay, exception, capacity, inventory state
+Typical extracted entities mapped from code include:
+- Variables/Data Objects -> Shipments, SKU, Container
+- Functions/Methods -> Facility, Processing Center, Warehouse
+- API Calls/Network I/O -> Dispatch Route, Lane, Vehicle
+- Exceptions/Errors -> KPI Violations, Exceptions, Delays
 
 ---
 
 ## Acknowledgement of repurposing
 
 This codebase is based on and inspired by the original hypergraph reasoning framework from the paper above.  
-Our use case shifts the domain from scientific materials reasoning to logistics automation and operational intelligence.
+Our use case shifts the domain from scientific materials reasoning to mapping software architecture as a logistical intelligence operation.
 
 Core algorithmic ideas retained:
 
-- chunked document processing
-- LLM-based relation extraction
-- higher-order event representation via hyperedges
+- chunked document/code processing
+- LLM-based architecture/relation extraction using n-ary representations (Hyperedges)
 - graph + hypergraph analysis workflows
 
 Main adaptations in this repository:
 
-- logistics-specific extraction prompts
-- JSON-structured output handling (no Instructor requirement)
-- logistics-oriented graph semantics and examples
+- code-as-a-logistics format in extraction prompts
+- JSON-structured output handling
+- software-architecture-oriented graph semantics mapped to logistics phrasing
 
 ---
 
 ## Repository layout
 
 - `GraphReasoning/` — main source package
-- `build/lib/GraphReasoning/` — build copy of package files
+- `scripts/` — runnable pipeline and utility scripts
 - `Notebooks/SG/` — notebooks for generation, analysis, and agents
-- `run_make_new_hypergraph.py` — main script to build integrated outputs
+  - `Data/` — source markdown inputs for notebook workflows
+  - `lib/` — local JavaScript/CSS assets for notebook graph visualization
+- `run_make_new_hypergraph.py` — compatibility entrypoint (delegates to `scripts/`)
+- `pdf2markdown.py` — compatibility entrypoint (delegates to `scripts/`)
 - `artifacts/`
   - `sg/graphs/` — per-document graph artifacts
   - `sg/integrated/` — merged/integrated graph artifacts
   - `cache/chunks/` — chunk-level cache
+
+Notebook-local legacy output folders such as `GRAPHDATA_paper/` and `GRAPHDATA_OUTPUT_paper/` were removed in favor of the canonical `artifacts/sg/` layout.
 
 ---
 
@@ -80,9 +99,17 @@ Set required environment variables in your shell or `.env`:
 - `MODEL_NAME`
 - `URL` (if applicable to your provider/client wrapper)
 
+### 2.1) Edit prompts in one place
+
+Prompt templates are centralized in `prompt_config.json` at repository root.
+
+- Edit this file to change extraction, distillation, and figure prompts.
+- Optional runtime override: set `GRAPH_REASONING_PROMPT_CONFIG` to another JSON file.
+- Script override: `python run_make_new_hypergraph.py --prompt-config path/to/prompts.json`
+
 ### 3) Put logistics markdown files here
 
-`Notebooks/SG/Data/`
+`Data/`
 
 ### 4) Run pipeline
 
